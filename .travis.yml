@@ -1,0 +1,25 @@
+language: generic
+
+dist: trusty
+
+script:
+  - docker build -t callback-server .
+
+before_deploy:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    on:
+      all_branches: true
+    script: >-
+      docker tag callback-server siwecos/callback-server:$TRAVIS_BRANCH &&
+      docker push siwecos/callback-server:$TRAVIS_BRANCH
+  - provider: script
+    skip_cleanup: true
+    on:
+      branch: master
+    script: >-
+      docker tag callback-server siwecos/callback-server:latest &&
+      docker push siwecos/callback-server:latest
